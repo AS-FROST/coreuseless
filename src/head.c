@@ -40,7 +40,7 @@ int head(const char* filepath, struct parsed flags) {
     }
   } else {
     char c;
-    while ((c = fgetc(file)) != NULL) {
+    while ((c = fgetc(file)) != EOF) {
       count++;
       printf("%c", c);
       if(count == bytes) break;
