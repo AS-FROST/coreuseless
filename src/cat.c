@@ -1,5 +1,8 @@
-#include "include/utils.h"
+#include "utils.h"
+#include <errno.h>
+#include <locale.h>
 #include <stdio.h>
+#include <string.h>
 
 #define MAX_LINE_LENGTH 8192
 
@@ -11,7 +14,7 @@ struct option options[] = {
 int cat(const char* path) {
   FILE* file = fopen(path, "r");
   if(file == NULL) {
-    printf("cat: file %s does not exist\n", path);
+    fprintf(stderr, "cat: %s: %s\n", path, strerror(errno));
     return 1;
   }
   char c;
@@ -23,6 +26,7 @@ int cat(const char* path) {
 }
 
 int main(int argc, char** argv) {
+  setlocale(LC_ALL, "");
   parse_args(argc, argv, options, array_len(options));
 
   for(int c = 1; c < argc; c++) {

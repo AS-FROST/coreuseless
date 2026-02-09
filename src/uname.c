@@ -1,5 +1,5 @@
-#include "include/utils.h"
-#include <stdbool.h>
+#include "utils.h"
+#include <stdio.h>
 #include <sys/utsname.h>
 
 #define ALL_FLAG (1 << 0)
@@ -16,7 +16,7 @@ struct option options[] = {
   opt("os-type",'o',OS_TYPE_FLAG,"get the os type"),
   opt("nodename",'n',NODENAME_FLAG,"get the nodename"),
   opt("kernel-release",'r',KERNEL_RELEASE_FLAG,"get the kernel release"),
-  opt("kernel-version",'V',KERNEL_VERSION_FLAG,"get the kernel version"),
+  opt("kernel-version",'v',KERNEL_VERSION_FLAG,"get the kernel version"),
   opt("arch",'A',ARCH_FLAG,"get the architecture of the system"),
 };
 

@@ -1,15 +1,18 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include <ncurses.h>
+#include <stdbool.h>
 #include <sys/types.h>
 
 #define TYPE_STRING 0
 #define TYPE_INT    1
 #define TYPE_BOOL   2
 
+#define TRUE true
+#define FALSE false
+
 struct value {
-  uint8_t type     ;
+  int     type     ;
   void*   value    ;
   char*   flag_name;
 };

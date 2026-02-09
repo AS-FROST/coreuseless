@@ -1,5 +1,9 @@
 #include "include/utils.h"
+#include <asm-generic/errno-base.h>
+#include <errno.h>
+#include <locale.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #define FLAG_SYMBOLIC (1 << 0)
@@ -11,33 +15,34 @@ const char* usage = "ln [SOURCE] [DESTINATION]\nlink DESTINATION to SOURCE";
 struct option options[] = {
   opt("symbolic",'s',FLAG_SYMBOLIC,"symbolically link files"),
   opt("force",'f',FLAG_FORCE,"force link file"),
-  opt("verbose",'i',FLAG_VERBOSE,"get more information"),
+  opt("verbose",'v',FLAG_VERBOSE,"get more information"),
 };
 
 int ln(const char* from, const char* to, int flags) {
   FILE* file_from = fopen(from, "r");
 
   if(file_from == NULL) {
-    printf("ln: file %s does not exist\n", from);
+    fprintf(stderr, "ln: %s: %s", from, strerror(errno));
     return 1;
   }
 
   FILE* file_to = fopen(to, "r");
   if(file_to != NULL && !(flags & FLAG_FORCE)) {
-    printf("ln: file %s already exists\n", to);
+    errno = EEXIST;
+    fprintf(stderr, "ln: %s: %s", to, strerror(errno));
     return 1;
   }
 
   if(!(flags & FLAG_SYMBOLIC)) link(from, to);
   else symlink(from, to);
 
-  printf("ln: linked %s to %s\n", to, from);
+  if(flags & FLAG_VERBOSE) printf("ln: linked %s to %s\n", to, from);
 
   return 0;
 }
 
 int main(int argc, char** argv) {
-
+  setlocale(LC_ALL, "");
   struct parsed flags = parse_args(argc, argv, options, array_len(options));
 
   char* from = NULL; char* to = NULL;

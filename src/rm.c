@@ -1,4 +1,5 @@
 #include "include/utils.h"
+#include <errno.h>
 #include <stdio.h>
 #include <dirent.h>
 #include <string.h>
@@ -10,7 +11,7 @@ const char* usage = "rm [FILES...]\nremove FILES from the filesystem\n-r, --recu
 
 struct option options[] = {
   opt("recursive",'r',FLAG_RECURSIVE,"delete folders"),
-  opt("verbose",'i',FLAG_VERBOSE,"program gets verbose"),
+  opt("verbose",'v',FLAG_VERBOSE,"program gets verbose"),
 };
 
 int rm(const char* path, int flag) {
@@ -30,7 +31,7 @@ int rm(const char* path, int flag) {
   FILE* file = fopen(path, "r");
 
   if (file == NULL) {
-    printf("rm: file %s does not exist", path);
+    fprintf(stderr, "rm: %s: %s", path, strerror(errno));
     return 1;
   }
   

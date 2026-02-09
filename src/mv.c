@@ -1,6 +1,7 @@
 #include "include/utils.h"
+#include <errno.h>
+#include <locale.h>
 #include <stdio.h>
-#include <dirent.h>
 #include <string.h>
 
 #define FLAG_FORCE (1 << 0)
@@ -10,60 +11,48 @@ const char* usage = "mv [SOURCE] [DESTINATION]\nmove SOURCE to DESTINATION";
 
 struct option options[] = {
   opt("force",'f',FLAG_FORCE,"force move file"),
-  opt("verbose",'i',FLAG_VERBOSE,"get more infos"),
+  opt("verbose",'v',FLAG_VERBOSE,"get more infos"),
 };
 
 
-int mv(char* from, const char* to, int flags) {
+int mv(const char* from, const char* to, int flags) {
   FILE* file_from = fopen(from, "r");
 
   if(file_from == NULL) {
-    printf("mv: file %s does not exists\n", from);
+    fprintf(stderr, "mv: %s: %s\n", from, strerror(errno));
     return 1;
   }
-  DIR* dir = opendir(to);
-  if(dir != NULL) {
-    char* dest = strdup(to);
-    strcat(dest, "/");
-    char* filename;
-    char* tmp = strdup(from);
-    while((filename = strtok_r(tmp, "/", &tmp))){
-      if(strlen(tmp) == 0)break;
-    }
-    strcat(dest, filename);
-    puts(dest);
-    return mv(from, dest, flags);
-  }
+  
   FILE* file_to = fopen(to, "r");
 
   if(file_to != NULL && !(flags & FLAG_FORCE)) {
-    printf("mv: file %s already exists\n", to);
+    errno = EEXIST;
+    fprintf(stderr, "mv: %s: %s\n", to, strerror(errno));
     return 1;
   }
 
-  file_to = fopen(to, "w");
-
-  char c;
-  while ((c = fgetc(file_from)) != EOF) {
-    fputc(c, file_to);
+  int status = rename(from, to);
+  if (status != 0) {
+    perror("mv");
+    return status;
   }
 
   if(flags & FLAG_VERBOSE) printf("mv: moved file %s to %s\n", from, to);
 
-  fclose(file_to);
   fclose(file_from);
+  if(file_to != NULL) fclose(file_to);
 
-  return remove(from);
+  return 0;
 }
 
 int main(int argc, char** argv) {
-
+  setlocale(LC_ALL, "");
   struct parsed flags = parse_args(argc, argv, options, array_len(options));
 
-  char* from; char* to;
+  const char* from = NULL; const char* to = NULL;
   for(int c = 1; c < argc; c++) {
     if(argv[c][0]=='-')continue;
-    if(from == NULL){
+    if(!from){
       from = argv[c];
     } else {
       to = argv[c];
@@ -71,7 +60,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  if(from == NULL || to == NULL) {
+  if(!from || !to) {
     puts("mv: need SOURCE and DESTINATION args");
     return 1;
   }

@@ -14,7 +14,7 @@ const char* usage = "touch [FILENAME...]\ncreates FILENAME(S) or edit the modifi
 
 struct option options[] = {
   opt("no-create",'c',FLAG_NO_CREATE,"do not create a file"),
-  opt("verbose",'i',FLAG_VERBOSE,"get more informations"),
+  opt("verbose",'v',FLAG_VERBOSE,"get more informations"),
   opt("access-date",'a',FLAG_ACCSS_DATE_ONLY,"edit the access date only"),
   opt("modification-date",'m',FLAG_MODIF_DATE_ONLY,"edit the modification date only"),
 };

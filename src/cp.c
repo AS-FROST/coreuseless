@@ -13,7 +13,7 @@ const char* usage = "cp [SOURCE] [DESTINATION]\ncopy the content of SOURCE to DE
 struct option options[] = {
   opt("force",'f',FLAG_FORCE,"force create file if exists"),
   opt("recursive",'r',FLAG_RECURSIVE,"copy an entire directory"),
-  opt("verbose",'i',FLAG_VERBOSE,"get more information"),
+  opt("verbose",'v',FLAG_VERBOSE,"get more information"),
 };
 
 

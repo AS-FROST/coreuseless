@@ -1,7 +1,9 @@
 #include "include/utils.h"
 #include "types.h"
+#include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define MAX_LINE_LENGTH 2048
@@ -17,10 +19,10 @@ struct option options[] = {
 };
 
 
-int head(const char* filepath, struct parsed flags) {
+int head(const char* filepath, struct parsed flags, int argc) {
   FILE* file = fopen(filepath, "r");
   if(file == NULL) {
-    printf("head: %s does not exist\n", filepath);
+    fprintf(stderr, "head: %s: %s", filepath, strerror(errno));
     return 1;
   }
   int bytes = 10; int lines = 10; int count = 0;
@@ -31,6 +33,9 @@ int head(const char* filepath, struct parsed flags) {
         lines = (int)(intptr_t)flags.value[c].value;
       }
   }
+  if(argc > 0) {
+    printf("==> %s <==\n", filepath);
+  }
   if(!(flags.flags & FLAG_BYTES)) {
     char buf[MAX_LINE_LENGTH];
     while (fgets(buf, sizeof(buf), file) != NULL) {
@@ -39,21 +44,29 @@ int head(const char* filepath, struct parsed flags) {
       if(count == lines)break;
     }
   } else {
-    char c;
-    while ((c = fgetc(file)) != NULL) {
+    int c;
+    while ((c = fgetc(file)) != EOF) {
       count++;
       printf("%c", c);
       if(count == bytes) break;
     }
   }
   fclose(file);
+  putchar('\n');
   return 0;
 }
 
 int main(int argc, char** argv) {
   struct parsed flags = parse_args(argc, argv, options, array_len(options));
+  char** str = {0}; int ind = 0;
   for(int c = 1; c < argc; c++) {
     if(argv[c][0]=='-') {c++; continue;};
-    if(head(argv[c], flags)) return 1;
+    // if(head(argv[c], flags, argc)) return 1;
+    str = realloc(str, (ind+1)*sizeof(char*));
+    str[ind]=argv[c];
+    ind++;
+  }
+  for(int c = 0; c < ind; c++) {
+    if(head(str[c], flags, ind)) return 1;
   }
 }

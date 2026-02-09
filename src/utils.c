@@ -1,4 +1,4 @@
-#include "include/utils.h"
+#include "utils.h"
 #include "types.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -39,7 +39,7 @@ struct parsed parse_args(int argc, char **argv, struct option options[], size_t 
             output.value_count++;
 
             if(options[i].value.type == TYPE_BOOL) {
-              output.value[size].value = (void*)(bool)(!strcmp(val, "true"));
+              output.value[size].value = (void*)(intptr_t)(!strcmp(val, "true"));
               output.value[size].type = TYPE_BOOL;
             } else if (options[i].value.type == TYPE_STRING) {
               output.value[size].value = (void*)strdup(val);
@@ -60,9 +60,6 @@ struct parsed parse_args(int argc, char **argv, struct option options[], size_t 
           printf("-%c, --%s  %s\n", options[i].small, options[i].name, options[i].description);
         }
         exit(0);
-      } else if (argv[c][1] == 'v') {
-        puts(version);
-        exit(0);
       }
       for(size_t j = 1; j < strlen(argv[c]); j++) {
         for(size_t i = 0; i < options_count; i++) {
@@ -78,7 +75,7 @@ struct parsed parse_args(int argc, char **argv, struct option options[], size_t 
               output.value_count++;
 
               if(options[i].value.type == TYPE_BOOL) {
-                output.value[size].value = (void*)(bool)(!strcmp(val, "true"));
+                output.value[size].value = (void*)(intptr_t)(!strcmp(val, "true"));
                 output.value[size].type = TYPE_BOOL;
               } else if (options[i].value.type == TYPE_STRING) {
                 output.value[size].value = (void*)strdup(val);
